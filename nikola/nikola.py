@@ -316,6 +316,7 @@ class Nikola(object):
             template_name, None, local_context)
 
         assert isinstance(output_name, bytes)
+        print("====>", output_name, self.config["OUTPUT_FOLDER"])
         assert output_name.startswith(
             self.config["OUTPUT_FOLDER"].encode('utf8'))
         url_part = output_name.decode('utf8')[len(self.config["OUTPUT_FOLDER"])
@@ -578,8 +579,14 @@ class Nikola(object):
         if self.config['TIMEZONE'] is not None:
             tzinfo = pytz.timezone(self.config['TIMEZONE'])
         targets = set([])
-        for wildcard, destination, template_name, use_in_feeds in \
-                self.config['post_pages']:
+        for entry in self.config['post_pages']:
+            # backwards compatibility
+            try:
+                (wildcard, destination, template_name, use_in_feeds,
+                 urlpattern) = entry
+            except ValueError:
+                (wildcard, destination, template_name, use_in_feeds) = entry
+                urlpattern = None
             print(".", end='')
             dirname = os.path.dirname(wildcard)
             for dirpath, _, _ in os.walk(dirname):
@@ -599,6 +606,7 @@ class Nikola(object):
                         template_name,
                         self.config['FILE_METADATA_REGEXP'],
                         tzinfo,
+                        urlpattern,
                     )
                     for lang, langpath in list(
                             self.config['TRANSLATIONS'].items()):

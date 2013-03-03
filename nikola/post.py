@@ -48,7 +48,7 @@ class Post(object):
     def __init__(
         self, source_path, cache_folder, destination, use_in_feeds,
         translations, default_lang, base_url, messages, template_name,
-        file_metadata_regexp=None, tzinfo=None
+        file_metadata_regexp=None, tzinfo=None, url_pattern=None
     ):
         """Initialize post.
 
@@ -74,6 +74,7 @@ class Post(object):
         self.default_lang = default_lang
         self.messages = messages
         self.template_name = template_name
+        self.url_pattern = url_pattern
         self.meta = get_meta(self, file_metadata_regexp)
 
         default_title = self.meta.get('title', '')
@@ -203,8 +204,16 @@ class Post(object):
         return data
 
     def destination_path(self, lang, extension='.html'):
-        path = os.path.join(self.translations[lang],
-                            self.folder, self.pagenames[lang] + extension)
+        if self.url_pattern:
+            path = self.url_pattern.format(self,
+                                           language=lang,
+                                           language_location=self.translations[lang],
+                                           slug=self.pagenames[lang])
+        else:
+            path = os.path.join(self.translations[lang],
+                                self.folder,
+                                self.pagenames[lang] + extension)
+
         return path
 
     def permalink(self, lang=None, absolute=False, extension='.html'):
