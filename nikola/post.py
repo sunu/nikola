@@ -208,7 +208,7 @@ class Post(object):
             path = self.url_pattern.format(self,
                                            language=lang,
                                            language_location=self.translations[lang],
-                                           slug=self.pagenames[lang])
+                                           slug=self.pagenames[lang],extension=extension)
         else:
             path = os.path.join(self.translations[lang],
                                 self.folder,
